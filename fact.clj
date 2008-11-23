@@ -73,7 +73,7 @@
           :values   ~(vec values))))))
 
 (defn stubfn
-  "Given a map of argument lists and return values, construct a function to
+  "Given a map of argument vectors and return values, construct a function to
   return the value associated with the key of arguments."
   [result-map]
   (fn [& args] (result-map (vec args))))
