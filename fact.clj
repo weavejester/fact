@@ -71,7 +71,29 @@
           :pending? ~(nil? value-map)
           :params  '~(vec params)
           :values   ~(vec values))))))
-      
+
+(defn stubfn
+  "Given a map of argument lists and return values, construct a function to
+  return the value associated with the key of arguments."
+  [result-map]
+  (fn [& args] (result-map (vec args))))
+
+(defmacro stub
+  "Create function stubs for isolated unit tests.
+  e.g. (stub [(f 1 2) 3
+              (f 3 2) 5]
+         (= (+ (f 1 2) (f 3 2))
+            8))"
+  [stubs & body]
+  (let [stub-pairs (partition 2 stubs)
+        make-maps  (fn [[[f & args] ret]] {f {(vec args) ret}})
+        bind-stub  (fn [[f clauses]] [f `(stubfn ~clauses)])]
+    `(binding
+       [~@(mapcat bind-stub
+            (apply merge-with merge
+              (map make-maps stub-pairs)))]
+       ~@body)))
+
 (def #^{:doc "The maximum amount of random test values to use."}
   *max-amount* 50)
 
