@@ -72,12 +72,6 @@
           :params  '~(vec params)
           :values   ~(vec values))))))
 
-(defn stubfn
-  "Given a map of argument vectors and return values, construct a function to
-  return the value associated with the key of arguments."
-  [result-map]
-  (fn [& args] (result-map (vec args))))
-
 (defmacro stub
   "Create function stubs for isolated unit tests.
   e.g. (stub [(f 1 2) 3
@@ -86,15 +80,15 @@
             8))"
   [stubs & body]
   (let [stub-pairs (partition 2 stubs)
-        make-maps  (fn [[[f & args] ret]] {f {(vec args) ret}})
-        bind-stub  (fn [[f clauses]] [f `(stubfn ~clauses)])]
+        fold-map   (fn [acc [[f & args] ret]]
+                      (assoc-in acc [f `(list ~@args)] ret))
+        bind-stub  (fn [[fname fhash]]
+                     `(~fname (fn [& args#] (~fhash args#))))]
     `(binding
-       [~@(mapcat bind-stub
-            (apply merge-with merge
-              (map make-maps stub-pairs)))]
+       [~@(mapcat bind-stub (reduce fold-map {} stub-pairs))]
        ~@body)))
 
-(def #^{:doc "The maximum amount of random test values to use."}
+(def #^{:doc "The maximum amount of test values to use per fact."}
   *max-amount* 50)
 
 (defn- test-cases
@@ -206,7 +200,7 @@
   "Prints a summary of the results from a set of verified facts to *test-out*."
   [& results]
   (let [results (apply concat results)]
-    (doseq result results
+    (doseq [result results]
       (.println *test-out* (format-result result)))
     (.println *test-out*
       (str (count results) " facts, "
