@@ -165,22 +165,24 @@
 (defn- format-params
   "Format a collection of parameters and values to a string."
   [params values]
-  (pr-str
-    (apply hash-map
-      (interleave params values))))
+  (apply str
+    (interpose ", "
+      (map #(str %1 " = " (pr-str %2))
+           params
+           values))))
 
 (defn- format-exception
   "Format an exception thrown by a test as a string."
   [result]
   (let [[exception values] (first (result :exceptions))]
-    (str "\n  EXCEPTION: "
+    (str "\n  EXCEPTION WHEN: "
       (format-params ((result :fact) :params) values)
       "\n  => " exception)))
 
 (defn- format-failure
   "Format a failed result as a string."
   [result]
-  (str "\n  FAILURE: "
+  (str "\n  FAILURE WHEN: "
     (format-params ((result :fact) :params)
                    (first (result :failures)))))
 
