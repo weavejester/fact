@@ -186,26 +186,58 @@
     (format-params ((result :fact) :params)
                    (first (result :failures)))))
 
+(defn- failure?
+  "Did the fact fail?"
+  [result]
+  (seq (result :failures)))
+
+(defn- exception?
+  "Did the fact throw an exception?"
+  [result]
+  (seq (result :exceptions)))
+
+(defn- pending?
+  "Is the fact pending a verification test?"
+  [result]
+  (:pending? (result :fact)))
+
 (defn- format-result
   "Format a single result from a verified fact."
   [result]
-  (let [fact (result :fact)]
-    (str
-      "- " (fact :doc)
-      (if (fact :pending?)
-        " (pending)"
-        (cond
-          (seq (result :exceptions)) (format-exception result)
-          (seq (result :failures))   (format-failure result))))))
+  (str "- " (:doc (result :fact))
+            (cond
+              (pending? result)   " (pending)"
+              (exception? result) (format-exception result)
+              (failure? result)   (format-failure result))))
+
+(defn- print-summary
+  "Print a summary of how many facts succeeded, failed, or excepted."
+  [results]
+  (.println *test-out*
+    (str (count results) " facts, "
+         (count (filter (comp :pending? :fact) results)) " pending, "
+         (count (filter (comp seq :failures) results)) " failed, "
+         (count (filter (comp seq :exceptions) results)) " exceptions")))
 
 (defn print-results
-  "Prints a summary of the results from a set of verified facts to *test-out*."
-  [& results]
-  (let [results (apply concat results)]
-    (doseq [result results]
-      (.println *test-out* (format-result result)))
-    (.println *test-out*
-      (str (count results) " facts, "
-           (count (filter (comp :pending? :fact) results)) " pending, "
-           (count (filter (comp seq :failures) results)) " failed, "
-           (count (filter (comp seq :exceptions) results)) " exceptions"))))
+  "Prints the results from a set of verified facts to *test-out*."
+  [results]
+  (doseq [result results]
+    (.println *test-out* (format-result result)))
+  (print-summary results))
+
+(defn print-color-results
+  "Print the results from a set of verified facts... in COLOR!
+  (Requires a shell with ANSI-compatible colors)"
+  [results]
+  (doseq [result results]
+    (cond
+      (pending? result)   (.print *test-out* "\033[33m")
+      (exception? result) (.print *test-out* "\033[31m")
+      (failure? result)   (.print *test-out* "\033[31m")
+      :fact-passed        (.print *test-out* "\033[32m"))
+    (.print *test-out* (format-result result))
+    (.print *test-out* "\033[0m")
+    (.println *test-out*))
+  (print-summary results))
+
