@@ -226,18 +226,22 @@
     (.println *test-out* (format-result result)))
   (print-summary results))
 
+(def ansi-red     "\033[31m")
+(def ansi-green   "\033[32m")
+(def ansi-brown   "\033[33m")
+(def ansi-default "\033[0m")
+
 (defn print-color-results
   "Print the results from a set of verified facts... in COLOR!
   (Requires a shell with ANSI-compatible colors)"
   [results]
   (doseq [result results]
     (cond
-      (pending? result)   (.print *test-out* "\033[33m")
-      (exception? result) (.print *test-out* "\033[31m")
-      (failure? result)   (.print *test-out* "\033[31m")
-      :fact-passed        (.print *test-out* "\033[32m"))
+      (pending? result)   (.print *test-out* ansi-brown)
+      (exception? result) (.print *test-out* ansi-red)
+      (failure? result)   (.print *test-out* ansi-red)
+      :fact-passed        (.print *test-out* ansi-green))
     (.print *test-out* (format-result result))
     (.print *test-out* "\033[0m")
     (.println *test-out*))
   (print-summary results))
-
