@@ -242,6 +242,6 @@
       (failure? result)   (.print *test-out* ansi-red)
       :fact-passed        (.print *test-out* ansi-green))
     (.print *test-out* (format-result result))
-    (.print *test-out* "\033[0m")
+    (.print *test-out* ansi-default)
     (.println *test-out*))
   (print-summary results))
