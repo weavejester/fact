@@ -65,6 +65,8 @@
   [func]
   (repeatedly func))
 
+(prefer-method test-seq ::collection IFn)
+
 (when-require 'rend
   (defmethod test-seq Pattern
     [re]
