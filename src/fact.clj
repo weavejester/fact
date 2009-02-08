@@ -1,4 +1,5 @@
 (ns fact
+  (:use fact.random)
   (:import java.util.Collection)
   (:import java.util.Map)
   (:import clojure.lang.IFn)
@@ -68,6 +69,10 @@
   (defmethod test-seq Pattern
     [re]
     (repeatedly #(rend/rend re))))
+
+(defmethod test-seq Class
+  [class]
+  (repeatedly #(random-object class)))
 
 ;; Verify a fact by running tests
 

@@ -1,27 +1,24 @@
 (ns fact.random)
 
-(defn rand-ints
-  "Generate an infinite sequence of random integers."
+(defn random-int
+  "Generate a random integer, optionally in a specific range."
   ([]
-    (rand-ints -65535 65535))
+    (random-int -65535 65535))
   ([min max]
-    (repeatedly #(+ (rand-int (- max min)) min))))
+    (+ (rand-int (- (inc max) min)) min)))
 
-(defn rand-elems
-  "Generate an infinite sequence of random elements from a collection."
+(defn random-choice
+  "Randomly choose an element from a collection."
   [coll]
   (let [v (vec coll)]
-    (repeatedly
-      #(v (rand-int (count v))))))
+    (v (rand-int (count v)))))
 
-(defn rand-seqs
-  "Generate an infinite sequence of random length sequences created by
-  a function f."
+(defn random-seq
+  "Generate a random sequence from by repeatedly applying a function f."
   ([f]
-    (rand-seqs f 0 100))
+    (random-seq f 0 100))
   ([f min max]
-    (map #(take % (f))
-          (rand-ints min max))))
+    (take (random-int min max) (repeatedly f))))
 
 (def ascii-lower   "abcdefghijklmnopqrstuvwxyz")
 (def ascii-upper   "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -30,13 +27,20 @@
 (def punctuation   ".,:;!?\"'`<>()[]{}-")
 (def white-space   " \t\n")
 
-(defn rand-strs
-  "Generate a sequence of random strings."
+(defn random-str
+  "Generate a random string."
   ([]
-    (rand-strs
+    (random-str
       (str ascii-letters digits punctuation white-space)))
   ([chars]
-    (rand-strs chars 0 100))
+    (random-str chars 0 100))
   ([chars min max]
-    (map (partial apply str)
-         (rand-seqs #(rand-elems chars) min max))))
+    (apply str
+      (random-seq #(random-choice chars) min max))))
+
+(defmulti
+  #^{:doc "Return a random object of a particular class."}
+  random-object identity)
+
+(defmethod random-object Integer [_] (random-int))
+(defmethod random-object String  [_] (random-str))
