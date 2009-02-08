@@ -1,11 +1,16 @@
-(ns fact)
+(ns fact
+  (:import java.util.Collection)
+  (:import java.util.Map)
+  (:import clojure.lang.IFn))
+
+;; Create a fact
 
 (defstruct fact-info
   :doc
   :test
   :pending?
   :params
-  :values)
+  :data)
 
 (defmacro fact
   "Define a documented fact that can be verified via a series of test values
@@ -19,29 +24,48 @@
             (+ (count x) (count y))))"
   ([doc]
    `(fact ~doc nil))
-  ([doc value-map & expr]
-    (let [pairs  (partition 2 value-map)
+  ([doc data-map & expr]
+    (let [pairs  (partition 2 data-map)
           params (map first pairs)
-          values (map second pairs)]
+          data   (map second pairs)]
      `(def ~(gensym "fact")
         (struct-map fact-info
           :doc      ~doc
           :test     (fn [~@params] ~@expr)
-          :pending? ~(nil? value-map)
+          :pending? ~(nil? data-map)
           :params  '~(vec params)
-          :values   ~(vec values))))))
+          :data     ~(vec data))))))
+
+;; Generate sequences of test data
+
+(derive java.util.Map ::collection)
+(derive java.util.Collection ::collection)
+
+(defmulti
+  #^{:doc "Return a sequence of test values from a particular generator."}
+  test-seq class)
+
+(defmethod test-seq ::collection
+  [coll]
+  (seq coll))
+
+(defmethod test-seq IFn
+  [func]
+  (repeatedly func))
+
+;; Verify a fact by running tests
 
 (def #^{:doc "The maximum amount of test values to use per fact."}
   *max-amount* 50)
 
-(defn- test-cases
+(defn- make-test-cases
   "Make a sequence of test cases from a number of test value sequences. The
   number of test cases is limited to *max-amount*. If the values sequences
   are of uneven length, the sequences are repeated up to the length of the
   largest value sequence."
   [vals]
   (if (seq vals)
-    (let [bounded-vals   (map #(take *max-amount* %) vals)
+    (let [bounded-vals   (map #(take *max-amount* (test-seq %)) vals)
           max-count      (apply max (map count bounded-vals))
           same-size-vals (map #(take max-count (cycle %)) bounded-vals)]
       (apply map vector same-size-vals))
@@ -79,12 +103,14 @@
     (struct result fact nil nil nil)
     (let [results (run-tests
                     (fact :test)
-                    (test-cases (fact :values)))]
+                    (make-test-cases (fact :data)))]
       (struct-map result
         :fact       fact
         :successes  (filter-category :success   results)
         :failures   (filter-category :failure   results)
         :exceptions (filter-category :exception results)))))
+
+;; Verify all facts in a namespace
 
 (defn- fact?
   "Is a symbol a fact?"
