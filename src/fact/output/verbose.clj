@@ -1,9 +1,5 @@
 (ns fact.output.verbose)
 
-(def #^{:doc "PrintWriter to which test results are printed; defaults to
-  System.out."}
-  *test-out* System/out)
-
 (defn- format-params
   "Format a collection of parameters and values to a string."
   [params values]
@@ -55,17 +51,16 @@
 (defn- print-summary
   "Print a summary of how many facts succeeded, failed, or excepted."
   [results]
-  (.println *test-out*
-    (str (count results) " facts, "
-         (count (filter (comp :pending? :fact) results)) " pending, "
-         (count (filter (comp seq :failures) results)) " failed, "
-         (count (filter (comp seq :exceptions) results)) " exceptions")))
+  (println (count results) "facts,"
+           (count (filter pending? results)) "pending,"
+           (count (filter failure? results)) "failed,"
+           (count (filter exception? results)) "exceptions"))
 
 (defn print-results
   "Prints the results from a set of verified facts to *test-out*."
   [results]
   (doseq [result results]
-    (.println *test-out* (format-result result)))
+    (println (format-result result)))
   (print-summary results))
 
 (def ansi-red     "\033[31m")
@@ -79,11 +74,11 @@
   [results]
   (doseq [result results]
     (cond
-      (pending? result)   (.print *test-out* ansi-brown)
-      (exception? result) (.print *test-out* ansi-red)
-      (failure? result)   (.print *test-out* ansi-red)
-      :fact-passed        (.print *test-out* ansi-green))
-    (.print *test-out* (format-result result))
-    (.print *test-out* ansi-default)
-    (.println *test-out*))
+      (pending? result)   (print ansi-brown)
+      (exception? result) (print ansi-red)
+      (failure? result)   (print ansi-red)
+      :fact-passed        (print ansi-green))
+    (print (format-result result))
+    (print  ansi-default)
+    (println))
   (print-summary results))
