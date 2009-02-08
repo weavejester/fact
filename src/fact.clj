@@ -40,6 +40,15 @@
 
 ;; Generate sequences of test data
 
+(defmacro when-require
+  "Execute a block of code only if the supplied namespace can be loaded."
+  [ns & body]
+  `(do
+     (try (require ~ns)
+          (catch FileNotFoundException e#))
+     (when (find-ns ~ns)
+       (eval '(do ~@body)))))
+
 (derive java.util.Map ::collection)
 (derive java.util.Collection ::collection)
 
@@ -55,13 +64,10 @@
   [func]
   (repeatedly func))
 
-(try (require 'rend)
-     (catch FileNotFoundException ex))
-
-(when (find-ns 'rend)
-  (eval `(defmethod test-seq Pattern
-           [re#]
-           (repeatedly #(rend/rend re#)))))
+(when-require 'rend
+  (defmethod test-seq Pattern
+    [re]
+    (repeatedly #(rend/rend re))))
 
 ;; Verify a fact by running tests
 
