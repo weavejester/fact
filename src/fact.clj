@@ -1,5 +1,5 @@
 (ns fact
-  (:use fact.random)
+  (:use fact.utils.random)
   (:import java.util.Collection)
   (:import java.util.Map)
   (:import clojure.lang.IFn)

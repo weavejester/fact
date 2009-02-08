@@ -1,4 +1,4 @@
-(ns fact.stub)
+(ns fact.utils.stub)
 
 (defmacro stub
   "Create function stubs for isolated unit tests.
@@ -15,4 +15,3 @@
     `(binding
        [~@(mapcat bind-stub (reduce fold-map {} stub-pairs))]
        ~@body)))
-

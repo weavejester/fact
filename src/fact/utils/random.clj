@@ -1,4 +1,4 @@
-(ns fact.random)
+(ns fact.utils.random)
 
 (defn random-int
   "Generate a random integer, optionally in a specific range."
