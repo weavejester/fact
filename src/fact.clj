@@ -128,15 +128,10 @@
 
 ;; Verify all facts in a namespace
 
-(defn- fact?
-  "Is a symbol a fact?"
-  [sym]
-  (.startsWith (name sym) "fact"))
-
 (defn- get-facts
   "Get all the functions beginning with 'fact' from a namespace."
   [ns]
-  (for [[sym var] (ns-publics ns) :when (fact? sym)]
+  (for [[sym var] (ns-publics ns) :when (.startsWith (name sym) "fact")]
     (var-get var)))
 
 (defn verify-facts
