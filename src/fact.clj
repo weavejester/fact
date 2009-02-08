@@ -1,7 +1,9 @@
 (ns fact
   (:import java.util.Collection)
   (:import java.util.Map)
-  (:import clojure.lang.IFn))
+  (:import clojure.lang.IFn)
+  (:import java.util.regex.Pattern)
+  (:import java.io.FileNotFoundException))
 
 ;; Create a fact
 
@@ -52,6 +54,14 @@
 (defmethod test-seq IFn
   [func]
   (repeatedly func))
+
+(try (require 'rend)
+     (catch FileNotFoundException ex))
+
+(when (find-ns 'rend)
+  (eval `(defmethod test-seq Pattern
+           [re#]
+           (repeatedly #(rend/rend re#)))))
 
 ;; Verify a fact by running tests
 
