@@ -66,17 +66,15 @@
 (defn- run-tests
   "Run a function with a collection of test-cases and return the results."
   [func test-cases]
-  (map
-    (fn [vals]
-      (try
-        (if (apply func vals)
-          [:success vals]
-          [:failure vals])
-      (catch Exception e
-        [:exception [e vals]])
-      (catch Error e
-        [:exception [e vals]])))
-    test-cases))
+  (for [vals test-cases]
+    (try
+      (if (apply func vals)
+        [:success vals]
+        [:failure vals])
+    (catch Exception e
+      [:exception [e vals]])
+    (catch Error e
+      [:exception [e vals]]))))
 
 (defn- filter-category
   "Filter a sequence of results matching the supplied category."
@@ -104,13 +102,16 @@
         :failures   (filter-category :failure   results)
         :exceptions (filter-category :exception results)))))
 
+(defn- fact?
+  "Is a symbol a fact?"
+  [sym]
+  (.startsWith (name sym) "fact"))
+
 (defn- get-facts
   "Get all the functions beginning with 'fact' from a namespace."
   [ns]
-  (map (comp var-get second)
-       (filter
-         (fn [[k f]] (.startsWith (name k) "fact"))
-         (ns-publics ns))))
+  (for [[sym var] (ns-publics ns) :when (fact? sym)]
+    (var-get var)))
 
 (defn verify-facts
   "Get a lazy list of results from all the facts in a namespace."
