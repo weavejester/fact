@@ -67,10 +67,10 @@
 
 (prefer-method test-seq ::collection IFn)
 
-(when-require 'rend
+(when-require 're-rand
   (defmethod test-seq Pattern
     [re]
-    (repeatedly #(rend/rend re))))
+    (repeatedly #(re-rand/re-rand re))))
 
 (defmethod test-seq Class
   [class]
