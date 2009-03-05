@@ -123,8 +123,8 @@
 (defn- filter-category
   "Filter a sequence of results matching the supplied category."
   [category results]
-  (map second
-    (filter #(= category (first %)) results)))
+  (for [[cat vals] results :when (= cat category)]
+    vals))
 
 (defstruct result
   :fact
