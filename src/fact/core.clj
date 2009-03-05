@@ -6,15 +6,11 @@
 ;; terms of this license. You must not remove this notice, or any other, from
 ;; this software.
 
-;; fact:
+;; fact.core:
 ;; 
-;; Fact is a unit testing library that is a cross between Ruby's RSpec and
-;; Haskell's QuickCheck.
+;; The core functionality of Fact.
 
-(ns fact
-  (:use fact.utils.random)
-  (:import java.util.Collection)
-  (:import java.util.Map)
+(ns fact.core
   (:import clojure.lang.IFn)
   (:import java.util.regex.Pattern)
   (:import java.io.FileNotFoundException))
