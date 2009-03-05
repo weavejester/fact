@@ -37,10 +37,3 @@
   ([chars min max]
     (apply str
       (random-seq #(random-choice chars) min max))))
-
-(defmulti
-  #^{:doc "Return a random object of a particular class."}
-  random-object identity)
-
-(defmethod random-object Integer [_] (random-int))
-(defmethod random-object String  [_] (random-str))

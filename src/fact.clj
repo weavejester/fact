@@ -85,10 +85,6 @@
     [re]
     (repeatedly #(re-rand/re-rand re))))
 
-(defmethod test-seq Class
-  [class]
-  (repeatedly #(random-object class)))
-
 ;; Verify a fact by running tests
 
 (def #^{:doc "The maximum amount of test values to use per fact."}
