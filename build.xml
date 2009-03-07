@@ -29,6 +29,7 @@
         <path location="${build.dir}"/>
         <path location="${source.dir}"/>
         <path location="${clojure.jar}"/>
+        <path location="${clojure-contrib.jar}"/>
       </classpath>
       <sysproperty key="clojure.compile.path" value="${build.dir}"/>
       <arg value="fact.core"/>

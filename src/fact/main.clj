@@ -13,7 +13,7 @@
 (ns fact.main
   (:gen-class)
   (:use fact.core)
-  (:use fact.output.verbose)
+  (:use clojure.contrib.command-line)
   (:import java.io.File))
 
 (defn resource-name
@@ -30,13 +30,28 @@
       (replace File/separator ".")
       (replace "_" "-"))))
 
-(defn -main [& files]
+(defn print-results
+  "Print the fact results using the specified output library."
+  [output results]
+  (let [namespace (symbol (str "fact.output." output))]
+    (require namespace)
+    (let [printer (var-get (ns-resolve namespace 'print-results))]
+      (printer namespace results))))
+
+(defn run-facts
+  "Load the files with facts in them, verify the facts, and print the results."
+  [output files]
   (doseq [file files]
-    (println file)
     (load-file file)
-    (let [ns    (namespace-from-path file)
-          facts (verify-facts ns)]
-      (when-not (empty? facts)
-        (println ns)
-        (print-results facts)
-        (println)))))
+    (let [ns      (namespace-from-path file)
+          results (verify-facts ns)]
+      (when-not (empty? results)
+        (print-results output results)))))
+
+(defn -main [& args]
+  "Main method."
+  (with-command-line args
+    "fact - Verify facts in files"
+    [[output? o? "The output type to use"]
+     files]
+    (run-facts (or output? "verbose") files)))

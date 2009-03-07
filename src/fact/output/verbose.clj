@@ -70,7 +70,8 @@
 
 (defn print-results
   "Prints the results from a set of verified facts to *test-out*."
-  [results]
+  [title results]
+  (println title)
   (doseq [result results]
     (println (format-result result)))
   (print-summary results))
