@@ -31,9 +31,10 @@
         <path location="${clojure.jar}"/>
       </classpath>
       <sysproperty key="clojure.compile.path" value="${build.dir}"/>
-      <arg value="fact"/>
-      <arg value="fact.utils.random"/>
-      <arg value="fact.utils.stub"/>
+      <arg value="fact.core"/>
+      <arg value="fact.main"/>
+      <arg value="fact.random-utils"/>
+      <arg value="fact.stub"/>
       <arg value="fact.output.verbose"/>
     </java>
   </target>

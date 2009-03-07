@@ -40,7 +40,7 @@
     (let [pairs  (partition 2 data-map)
           params (map first pairs)
           data   (map second pairs)]
-     `(def ~(gensym "fact")
+     `(def ~(gensym "fact-")
         (struct-map fact-info
           :doc      ~doc
           :test     (fn [~@params] ~@expr)
@@ -143,7 +143,7 @@
 (defn- get-facts
   "Get all the functions beginning with 'fact' from a namespace."
   [ns]
-  (for [[sym var] (ns-publics ns) :when (.startsWith (name sym) "fact")]
+  (for [[sym var] (ns-publics ns) :when (.startsWith (name sym) "fact-")]
     (var-get var)))
 
 (defn verify-facts
