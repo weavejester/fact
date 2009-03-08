@@ -37,6 +37,7 @@
       <arg value="fact.random-utils"/>
       <arg value="fact.stub"/>
       <arg value="fact.output.verbose"/>
+      <arg value="fact.output.color"/>
     </java>
   </target>
 

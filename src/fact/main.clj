@@ -32,11 +32,11 @@
 
 (defn print-results
   "Print the fact results using the specified output library."
-  [output results]
+  [output title results]
   (let [namespace (symbol (str "fact.output." output))]
     (require namespace)
     (let [printer (var-get (ns-resolve namespace 'print-results))]
-      (printer namespace results))))
+      (printer title results))))
 
 (defn run-facts
   "Load the files with facts in them, verify the facts, and print the results."
@@ -46,12 +46,13 @@
     (let [ns      (namespace-from-path file)
           results (verify-facts ns)]
       (when-not (empty? results)
-        (print-results output results)))))
+        (print-results output ns results)
+        (println)))))
 
 (defn -main [& args]
   "Main method."
   (with-command-line args
     "fact - Verify facts in files"
-    [[output? o? "The output type to use"]
+    [[output o "The output type to use"]
      files]
-    (run-facts (or output? "verbose") files)))
+    (run-facts (or output "verbose") files)))
