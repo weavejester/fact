@@ -150,3 +150,18 @@
   "Get a lazy list of results from all the facts in a namespace."
   ([]   (verify-facts *ns*))
   ([ns] (map verify (get-facts ns))))
+
+(defn failure?
+  "Did the fact fail?"
+  [result]
+  (not-empty (result :failures)))
+
+(defn exception?
+  "Did the fact throw an exception?"
+  [result]
+  (not-empty (result :exceptions)))
+
+(defn pending?
+  "Is the fact pending a verification test?"
+  [result]
+  (:pending? (result :fact)))

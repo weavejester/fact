@@ -11,7 +11,8 @@
 ;; Verbose color output of fact results.
 
 (ns fact.output.color
-  (:require [fact.output.verbose :as verbose]))
+  (:use fact.core)
+  (:use [fact.output.verbose :only (format-result print-summary)]))
 
 (def ansi-red     "\033[31m")
 (def ansi-green   "\033[32m")
@@ -25,11 +26,11 @@
   (println title)
   (doseq [result results]
     (cond
-      (verbose/pending? result)   (print ansi-brown)
-      (verbose/exception? result) (print ansi-red)
-      (verbose/failure? result)   (print ansi-red)
-      :fact-passed                (print ansi-green))
-    (print (verbose/format-result result))
+      (pending? result)   (print ansi-brown)
+      (exception? result) (print ansi-red)
+      (failure? result)   (print ansi-red)
+      :fact-passed        (print ansi-green))
+    (print (format-result result))
     (print ansi-default)
     (println))
-  (verbose/print-summary results))
+  (print-summary results))

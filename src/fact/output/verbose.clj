@@ -10,7 +10,8 @@
 ;; 
 ;; Verbose output of fact results.
 
-(ns fact.output.verbose)
+(ns fact.output.verbose
+  (:use fact.core))
 
 (defn- format-params
   "Format a collection of parameters and values to a string."
@@ -36,21 +37,6 @@
     (format-params ((result :fact) :params)
                    (first (result :failures)))))
 
-(defn failure?
-  "Did the fact fail?"
-  [result]
-  (seq (result :failures)))
-
-(defn exception?
-  "Did the fact throw an exception?"
-  [result]
-  (seq (result :exceptions)))
-
-(defn pending?
-  "Is the fact pending a verification test?"
-  [result]
-  (:pending? (result :fact)))
-
 (defn format-result
   "Format a single result from a verified fact."
   [result]
@@ -63,10 +49,12 @@
 (defn print-summary
   "Print a summary of how many facts succeeded, failed, or excepted."
   [results]
-  (println (count results) "facts,"
-           (count (filter pending? results)) "pending,"
-           (count (filter failure? results)) "failed,"
-           (count (filter exception? results)) "exceptions"))
+  (println
+    (count results) "facts,"
+    (count (filter pending? results)) "pending,"
+    (count (filter failure? results)) "failed,"
+    (count (filter exception? results)) "exceptions")
+  (println))
 
 (defn print-results
   "Prints the results from a set of verified facts to *test-out*."

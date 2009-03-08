@@ -38,16 +38,25 @@
     (let [printer (var-get (ns-resolve namespace 'print-results))]
       (printer title results))))
 
-(defn run-facts
+(defn load-facts
+  "Load and verify facts from a file, returning the namespace and results."
+  [file]
+  (load-file file)
+  (let [ns (namespace-from-path file)]
+    [ns (verify-facts ns)]))
+
+(defn load-result-map
+  "Load all facts in a list of files, and return a map of namespaces to
+  results."
+  [files]
+  (into (sorted-map) (map load-facts files)))
+
+(defn print-result-map
   "Load the files with facts in them, verify the facts, and print the results."
-  [output files]
-  (doseq [file files]
-    (load-file file)
-    (let [ns      (namespace-from-path file)
-          results (verify-facts ns)]
-      (when-not (empty? results)
-        (print-results output ns results)
-        (println)))))
+  [output result-map]
+  (doseq [[ns results] result-map]
+    (when-not (empty? results)
+      (print-results output ns results))))
 
 (defn -main [& args]
   "Main method."
@@ -55,4 +64,12 @@
     "fact - Verify facts in files"
     [[output o "The output type to use"]
      files]
-    (run-facts (or output "verbose") files)))
+    (let [result-map (load-result-map files)
+          results    (mapcat val result-map)]
+      (print-result-map
+        (or output "verbose")
+        result-map)
+      (when (some exception? results)
+        (System/exit 2))
+      (when (some failure? results)
+        (System/exit 1)))))
