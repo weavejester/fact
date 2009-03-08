@@ -38,6 +38,7 @@
       <arg value="fact.stub"/>
       <arg value="fact.output.verbose"/>
       <arg value="fact.output.color"/>
+      <arg value="fact.output.quiet"/>
     </java>
   </target>
 
