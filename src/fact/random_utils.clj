@@ -10,27 +10,31 @@
 ;; 
 ;; Useful functions for creating random test data.
 
-(ns fact.random-utils)
+(ns fact.random-utils
+  (:use clojure.contrib.seq-utils))
 
 (defn random-int
   "Generate a random integer, optionally in a specific range."
-  ([]
-    (random-int -65535 65535))
-  ([min max]
-    (+ (rand-int (- (inc max) min)) min)))
-
-(defn random-choice
-  "Randomly choose an element from a collection."
-  [coll]
-  (let [v (vec coll)]
-    (v (rand-int (count v)))))
+  ([]        (random-int -65535 65535))
+  ([min max] (+ (rand-int (- (inc max) min)) min)))
 
 (defn random-seq
-  "Generate a random sequence from by repeatedly applying a function f."
-  ([f]
-    (random-seq f 0 100))
-  ([f min max]
-    (take (random-int min max) (repeatedly f))))
+  "Generate a random sequence by repeatedly applying a function f."
+  ([f]         (random-seq f 0 100))
+  ([f min max] (take (random-int min max) (repeatedly f))))
+
+(defn random-vec
+  "Generate a random vector by repeatedly applying a function f."
+  ([f]         (vec (random-seq f)))
+  ([f min max] (vec (random-seq f min max))))
+
+(defn random-map
+  "Generate a random map using a key function and a value function."
+  ([keyf valf]
+    (random-map keyf valf 0 100))
+  ([keyf valf min max]
+    (into {}
+      (random-seq (fn [] [(keyf) (valf)]) min max))))
 
 (def ascii-lower   "abcdefghijklmnopqrstuvwxyz")
 (def ascii-upper   "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -48,4 +52,12 @@
     (random-str chars 0 100))
   ([chars min max]
     (apply str
-      (random-seq #(random-choice chars) min max))))
+      (random-seq #(rand-elt chars) min max))))
+
+(def random-string random-str)
+
+(defn random-keyword
+  "Generate a random keyword."
+  ([]              (random-keyword (str ascii-letters digits "-_")))
+  ([chars]         (keyword (random-str chars)))
+  ([chars min max] (keyword (random-str chars min max))))
